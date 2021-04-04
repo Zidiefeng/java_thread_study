@@ -10,17 +10,19 @@ public class TestJoin implements Runnable{
         }
     }
 
-    public static void main(String[] args) {
-        //claim the thread
+    public static void main(String[] args) throws InterruptedException {
+        //start the thread
         TestJoin testJoin = new TestJoin();
         Thread thread = new Thread(testJoin);
+        thread.start();
 
 
         //main thread
-        for (int i = 0; i < 1000; i++) {
-            if(i==200){
+        for (int i = 0; i < 50; i++) {
+            if(i==25){
                 thread.join(); //插队
             }
+            System.out.println("main"+i);
         }
     }
 }
