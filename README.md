@@ -1,7 +1,4 @@
-# Multi-Thread Learning - Java
-
-
-# 【狂】多线程
+# Multi-Thread Learning - Java (多线程）
 
 ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled.png)
 
