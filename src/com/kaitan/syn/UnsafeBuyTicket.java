@@ -27,7 +27,7 @@ class BuyTicket implements Runnable{
         }
     }
 
-    private void buy() throws InterruptedException {
+    private synchronized void buy() throws InterruptedException {
         if (ticketNums <=0){
             flag = false;
             return;
@@ -37,6 +37,6 @@ class BuyTicket implements Runnable{
         Thread.sleep(100);
 
         //purchase ticket
-        System.out.println(Thread.currentThread().getName()+"get"+ticketNums--);
+        System.out.println(Thread.currentThread().getName()+" get "+ticketNums--);
     }
 }

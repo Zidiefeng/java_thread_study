@@ -42,27 +42,32 @@ class Drawing extends Thread{
     //银行取钱的行为
     @Override
     public void run() {
-        //如果存款不够，不能取钱
-        if (account.balance-drawingMoney<0){
-            System.out.println(Thread.currentThread().getName()+": No Enough Money");
-            return;
+
+        synchronized (account) {
+            //如果存款不够，不能取钱
+            if (account.balance-drawingMoney<0){
+                System.out.println(Thread.currentThread().getName()+": No Enough Money");
+                return;
+            }
+
+            //加之个延迟，意思是，在此之前大家都判断为有钱，但是还没来得及取，不过因为判断为有钱，所有都要开始行动（开始取钱）了
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            //如果钱够，取钱，余额减少
+            account.balance = account.balance -drawingMoney;
+
+            //手上的钱增加
+            nowMoney = nowMoney + drawingMoney;
+
+            System.out.println(account.name+": balance = "+account.balance);
+            //because extends Thread, getName() is inherited
+            System.out.println(this.getName()+": money in hand:"+nowMoney);
+
         }
 
-        //加之个延迟，意思是，在此之前大家都判断为有钱，但是还没来得及取，不过因为判断为有钱，所有都要开始行动（开始取钱）了
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        //如果钱够，取钱，余额减少
-        account.balance = account.balance -drawingMoney;
-
-        //手上的钱增加
-        nowMoney = nowMoney + drawingMoney;
-
-        System.out.println(account.name+": balance = "+account.balance);
-        //because extends Thread, getName() is inherited
-        System.out.println(this.getName()+": money in hand:"+nowMoney);
     }
 }
