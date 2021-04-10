@@ -1,5 +1,5 @@
 
-# Multi-Thread Learning - Java (多线程）
+### Multi-Thread Learning - Java (多线程）
 
-- **狂神说-java多线程-个人学习笔记 (原bilibili视频链接已附在文中)**
-- **code放在了src中**
+- 狂神说-java多线程-[个人学习笔记](https://github.com/Zidiefeng/java_thread_study/blob/master/docs/content.md)
+- code放在了[src](https://github.com/Zidiefeng/java_thread_study/tree/master/src/com/kaitan)
