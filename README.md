@@ -1,6 +1,4 @@
-# Multi-Thread Learning - Java (多线程）
-
-狂神说-java多线程-个人学习笔记 (原bilibili视频链接已附在文中)
+# 【狂】多线程
 
 ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled.png)
 
@@ -980,7 +978,11 @@ interface Ilike{
 
 ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2017.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2017.png)
 
-### 线程停止
+### 1-线程就绪
+
+start
+
+### 2-线程停止
 
 ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2018.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2018.png)
 
@@ -1030,7 +1032,7 @@ public class TestStop implements Runnable{
 }
 ```
 
-### 线程休眠sleep
+### 3-线程休眠sleep
 
 - [ ]  [P12多线程12：线程休眠_sleep08:01](https://www.bilibili.com/video/BV1V4411p7EF?p=12)
 - 当前线程阻塞的毫秒数
@@ -1143,7 +1145,7 @@ public class TestStop implements Runnable{
             }
     ```
 
-### 线程yield（礼让）
+### 4-线程yield（礼让）
 
 概念懂了，但是例子中的 结果不太明白！！！
 
@@ -1184,7 +1186,7 @@ public class TestStop implements Runnable{
 
     ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2019.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2019.png)
 
-## Join
+### 5-Join
 
 - [ ]  [P14多线程14：线程强制执行_join05:17](https://www.bilibili.com/video/BV1V4411p7EF?p=14)
 
@@ -1382,17 +1384,1336 @@ main48
 main49
 ```
 
+## 线程状态观测
+
 - [ ]  [P15多线程15：观测线程状态07:48](https://www.bilibili.com/video/BV1V4411p7EF?p=15)
+
+![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2020.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2020.png)
+
+### 实操
+
+- 构思：
+    - 主线程来输出另一个线程的执行状态
+    - 注意，只有thread才是新线程的情况，Thread.sleep只是个方法调用
+- 用lambda 新建new一个线程，此时状态时NEW
+- 然后开始运行，发现是RUNNABLE
+- 然后进入等待TIMED_WATTING
+- 最终结束时，TERMINATED
+- 注意结束之后，不能再次start,因为此时这个thread已经死亡，如果想再用，需要再new一个新的instance
+
+```python
+package com.kaitan.state;
+// observe the state of thread
+public class TestState {
+    public static void main(String[] args) throws InterruptedException {
+        Thread thread = new Thread(() -> {
+            for (int i = 0; i < 5; i++) {
+                try {
+                    Thread.sleep(1000);
+                }catch(InterruptedException e ){
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("-------------");
+        });
+
+        //Observe state
+        Thread.State state = thread.getState();
+        System.out.println(state); // should be new because has not start()
+
+        //start and observe state
+        thread.start();
+        state = thread.getState();
+        System.out.println(state);
+
+        while(state != Thread.State.TERMINATED){//constantly output state if this is not terminated
+            Thread.sleep(500);
+            state=thread.getState(); //update state
+            System.out.println(state);
+        }
+
+        //thread.start(); //error, a dead thread cannot be re-start again, you need to new a thread
+
+    }
+}
+```
+
+results
+
+```python
+NEW
+RUNNABLE
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+TIMED_WAITING
+-------------
+TERMINATED
+```
+
+![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2021.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2021.png)
+
+## 线程优先级Priority
+
 - [ ]  [P16多线程16：线程的优先级07:50](https://www.bilibili.com/video/BV1V4411p7EF?p=16)
+
+### Priority
+
+- 线程执行状态由CPU决定，但是Java 可以设置优先级，优先级高不代表可以真正优先执行，但权重高
+- 优先级低，意味着优先获得调度的概率低，不代表不被调用了
+
+![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2022.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2022.png)
+
+### 实践
+
+- 定义一个线程类，就是打印currentThread 的名字，和Priority
+- 在main中，先查看当前线程（main）的Priority，发现是默认的5
+- 然后new出6个线程，分别设置他们的优先级，然后start
+- 查看结果，看看是不是优先级高的在前面
+    - 注意，这个只是个优先级，不代表真正的顺序
+    - 多次实验之后，应该大部分符合优先级高的在前
+
+```python
+package com.kaitan.state;
+
+public class TestPriority {
+    public static void main(String[] args) {
+        //main thread-priority check
+        System.out.println(Thread.currentThread().getName()+"-->"+Thread.currentThread().getPriority());
+
+        MyPriority myPriority = new MyPriority();
+
+        Thread t0 = new Thread(myPriority);
+        Thread t1 = new Thread(myPriority);
+        Thread t2 = new Thread(myPriority);
+        Thread t3 = new Thread(myPriority);
+        Thread t4 = new Thread(myPriority);
+        Thread t5 = new Thread(myPriority);
+
+        //set priority, start
+        t0.start();
+
+        t1.setPriority(1);
+        t1.start();
+
+        t2.setPriority(4);
+        t2.start();
+
+        t3.setPriority(Thread.MAX_PRIORITY); //10
+        t3.start();
+
+        t4.setPriority(7);
+        t4.start();
+
+        t5.setPriority(8);
+        t5.start();
+
+        //t4.setPriority(-1);
+        //t4.start();
+
+        //t5.setPriority(11);
+        //t5.start();
+
+    }
+}
+
+class MyPriority implements Runnable{
+
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName()+"-->"+Thread.currentThread().getPriority());
+    }
+}
+```
+
+结果
+
+```python
+main-->5
+Thread-3-->10
+Thread-0-->5
+Thread-5-->8
+Thread-4-->7
+Thread-2-->4
+Thread-1-->1
+```
+
+## daemon守护线程
+
 - [ ]  [P17多线程17：守护线程07:34](https://www.bilibili.com/video/BV1V4411p7EF?p=17)
+
+### Daemon
+
+- 线程（用bool）分为
+    - 用户线程
+    - 守护线程daemon
+- 虚拟机必须确保用户线程执行完毕
+    - 比如main
+- 虚拟机不用等待守护线程执行完毕
+    - 比如垃圾回收线程，后台记录操作日志，监控内存
+
+### 例子
+
+- class You：用户线程，有限循环，结束了，trigger虚拟机结束
+- class God：守护线程（`thread.setDaemon(true);`）无线循环，但是因为这个是守护线程，随着用户线程结束，也就结束了
+- 运行结果，守护线程会多运行一小会儿（因为虚拟机结束需要一点时间）
+
+```python
+package com.kaitan.state;
+
+//测试守护线程
+//上帝守护你
+public class TestDaemon {
+    public static void main(String[] args) {
+        God god = new God();
+        You you = new You();
+
+        Thread thread = new Thread(god);
+        thread.setDaemon(true); // default is false (user thread)
+
+        thread.start(); // start god - daemon thread
+
+        new Thread(you).start(); // 你用户线程
+
+    }
+}
+
+// god
+class God implements Runnable{
+
+    @Override
+    public void run() {
+        while(true){
+            System.out.println("God bless you");
+        }
+    }
+}
+
+// you
+class You implements Runnable{
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 36500; i++) {
+            System.out.println("一生都开心的活着");
+        }
+        System.out.println("goodbye~! World.");
+    }
+}
+```
+
+## 线程同步
+
 - [ ]  [P18多线程18：线程同步机制08:48](https://www.bilibili.com/video/BV1V4411p7EF?p=18)
+
+### 并发
+
+- 同一个对象 被 多个线程 同时操作
+    - 比如一堆人抢100张票
+    - 两个银行同时取钱
+- 现实中的解决办法*：*排队（程序中叫做队列）
+
+### 队列&锁
+
+- 多线程访问同一个对象，而且某些线程还想修改这个对象，此时需要线程同步，（一种等待机制），多个需要同时访问的线程进入这个对象的等待池形成队列，等待前面的thread结束，然后下一个thread再用
+- 为了安全性，需要锁
+    - 比如排队上厕所，需要锁门
+    - （之前sleep提到，sleep不会释放锁）
+
+### 线程同步synchronized
+
+- 锁机制可能会导致性能问题
+
+![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2023.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2023.png)
+
+## 安全性问题
+
 - [ ]  [P19多线程19：三大不安全案例20:33](https://www.bilibili.com/video/BV1V4411p7EF?p=19)
+
+### 买票例子
+
+- 注意用了Runnable,new出来的thread,其实只调用重新定义的run函数，其他的方法，还有attribute可以作为共用的部分
+- 如下，三个人抢票，同步操作ticketNums这个var
+- 
+
+```python
+package com.kaitan.syn;
+
+public class UnsafeBuyTicket {
+    public static void main(String[] args) {
+        BuyTicket station = new BuyTicket();
+
+        new Thread(station,"Me").start();
+        new Thread(station,"You").start();
+        new Thread(station,"HuangNiu").start();
+
+    }
+}
+
+class BuyTicket implements Runnable{
+    // ticket
+    private int ticketNums = 10;
+    boolean flag = true; //external stop
+
+    @Override
+    public void run() {//purchase ticket
+        while(flag){
+            try {
+                buy();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void buy() throws InterruptedException {
+        if (ticketNums <=0){
+            flag = false;
+            return;
+        }
+
+        // mock delay
+        Thread.sleep(100);
+
+        //purchase ticket
+        System.out.println(Thread.currentThread().getName()+"get"+ticketNums--);
+    }
+}
+```
+
+RESULTS
+
+```python
+HuangNiuget10
+Youget10
+Meget9
+Youget8
+Meget7
+HuangNiuget6
+HuangNiuget5
+Meget3
+Youget4
+Youget2
+Meget1
+HuangNiuget0
+```
+
+### 取钱例子
+
+结构设计：
+
+- 账户class：attr是balance，还有account名称（name）
+- 银行取钱class，继承thread:
+    - 启动参数：对哪个Account进行取钱，取钱的金额，谁取的钱
+    - 构造器：储存account类，要取的金额，并且把人名 传为父类thread的name
+    - 取钱行为：重写run方法
+        - 先判断这个账户中余额够不够
+        - 模拟延迟1s
+        - 开始取钱-减少这个Accuont的balance，增加手中余额（初始都是0），注意操作的是对象account的balance，这个是这里所有取钱行为的 公共资源
+- main方法
+    - new一个账户-结婚基金，有100余额
+    - new两个取钱的thread，传入同一个account，模拟两个人 分别对同一个账户取钱
+    - start这两个thread，让两个线程同时开始取钱
+- 结果-线程不安全的 解读
+
+    加之个延迟，在此之前大家都判断为有钱，但是还没来得及取，不过因为判断为有钱，所有都要开始行动（开始取钱）了，导致同时操作取钱，没有重新考虑是否余额足够
+
+    ```java
+    结婚基金: balance = 50
+    结婚基金: balance = -50
+    GirlFriend: money in hand:100
+    YOU: money in hand:50
+    ```
+
+```java
+package com.kaitan.syn;
+
+//2 persons withdraw money in bank
+public class UnsafeBank {
+    public static void main(String[] args) {
+        Account account = new Account(100,"结婚基金");
+
+        Drawing you = new Drawing(account, 50,"YOU");
+        Drawing girlFriend = new Drawing(account, 100,"GirlFriend");
+
+        girlFriend.start();
+        you.start();
+
+    }
+}
+
+class Account{
+    int balance; //balance
+    String name; // card name
+
+    public Account(int balance, String name) {
+        this.balance = balance;
+        this.name = name;
+    }
+}
+
+//bank, withdraw
+class Drawing extends Thread{
+    Account account;
+    //取钱
+    int drawingMoney;
+    //手上的钱
+    int nowMoney;
+
+    //初始值: 哪个账户，取多少钱，
+    public Drawing(Account account, int drawingMoney, String name){
+        super(name); //将name传进父类thread的构造方法 - 直接使用thread的名字
+        this.account = account;
+        this.drawingMoney = drawingMoney;
+    }
+
+    //银行取钱的行为
+    @Override
+    public void run() {
+        //如果存款不够，不能取钱
+        if (account.balance-drawingMoney<0){
+            System.out.println(Thread.currentThread().getName()+": No Enough Money");
+            return;
+        }
+
+        //加之个延迟，意思是，在此之前大家都判断为有钱，但是还没来得及取，不过因为判断为有钱，所有都要开始行动（开始取钱）了
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //如果钱够，取钱，余额减少
+        account.balance = account.balance -drawingMoney;
+
+        //手上的钱增加
+        nowMoney = nowMoney + drawingMoney;
+
+        System.out.println(account.name+": balance = "+account.balance);
+        //because extends Thread, getName() is inherited
+        System.out.println(this.getName()+": money in hand:"+nowMoney);
+    }
+}
+```
+
+### 不安全的collection操作
+
+- 建立了一个list，然后 开通10000个同步的线程，希望把所有的thread名字存到一个list里
+- 不安全：发现即使加了个3s延迟再print list的结果，发现长度是9994，不是10000
+- 不安全原因：多个thread可能同时append list，append到的是同一个位置，所以总长小于10000
+
+```java
+package com.kaitan.syn;
+
+import java.util.ArrayList;
+import java.util.List;
+
+//thread不安全的 集合
+public class UnsafeList {
+    public static void main(String[] args) throws InterruptedException {
+        List<String> list = new ArrayList<String>();
+        for (int i = 0; i < 10000; i++) {
+            new Thread(()->{
+                list.add(Thread.currentThread().getName());
+            }).start();
+        }
+        Thread.sleep(3000);
+        System.out.println(list.size());
+    }
+}
+```
+
+### 安全问题
+
+- 买票-为什么可能出现负数
+    - 之前有一句话：每个thread在自己的工作内存交互，内存控制不当会导致数据不一致
+    - 三个人都看到只剩1张票的时候，都觉得可以（把1 放到自己的内存里），买完之后有thread就付了
+- 银行取钱，为什么会出现负数
+    - 加之个延迟，在此之前大家都判断为有钱，但是还没来得及取，不过因为判断为有钱，所有都要开始行动（开始取钱）了，导致同时操作取钱，没有重新考虑是否余额足够
+- 线程对同一个collection（如list）进行操作，发现长度小于thread个数
+    - 多个thread可能同时append list，append到的是同一个位置，所以总长小于10000
+
+## 同步方法
+
 - [ ]  [P20多线程20：同步方法及同步块10:20](https://www.bilibili.com/video/BV1V4411p7EF?p=20)
+
+### 同步方法概念
+
+- 对方法，可以通过synchronized标记为同步方法，以更加安全
+- synchronized 有两种用法
+    - 代码块
+    - 方法
+- 标记为synchronized的方法，对 对象访问的时候，必须要先获得该对象的锁，如果没有锁，这能等着。获得锁之后，独占锁，其他方法无法访问该对象，该方法return完成之后，才能释放锁
+- 方法太大 容易低效，比如如果一个方法先修改 再查看，查看的时候不需要进行修改，没必要独占该对象，所以可以只对方法中的一部分加synchronized（即为代码块）
+
+    ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2024.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2024.png)
+
+### 代码例子
+
+- 买票
+    - 增加synchronized 到方法上，这里操作对象是自身this,所以锁的是自身
+
+        ```java
+        package com.kaitan.syn;
+
+        public class UnsafeBuyTicket {
+            public static void main(String[] args) {
+                BuyTicket station = new BuyTicket();
+
+                new Thread(station,"Me").start();
+                new Thread(station,"You").start();
+                new Thread(station,"HuangNiu").start();
+
+            }
+        }
+
+        class BuyTicket implements Runnable{
+            // ticket
+            private int ticketNums = 10;
+            boolean flag = true; //external stop
+
+            @Override
+            public void run() {//purchase ticket
+                while(flag){
+                    try {
+                        buy();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            private synchronized void buy() throws InterruptedException {
+                if (ticketNums <=0){
+                    flag = false;
+                    return;
+                }
+
+                // mock delay
+                Thread.sleep(100);
+
+                //purchase ticket
+                System.out.println(Thread.currentThread().getName()+" get "+ticketNums--);
+            }
+        }
+        ```
+
+- 取钱
+    - 这里不能锁run（）方法，**synchronize 默认锁自身this**,如果应该锁别的对象，需要用到synchronize块
+    - 如下，框起来需要锁account这个对象的代码，括号里写为account
+
+    ```java
+    package com.kaitan.syn;
+
+    //2 persons withdraw money in bank
+    public class UnsafeBank {
+        public static void main(String[] args) {
+            Account account = new Account(100,"结婚基金");
+
+            Drawing you = new Drawing(account, 50,"YOU");
+            Drawing girlFriend = new Drawing(account, 100,"GirlFriend");
+
+            girlFriend.start();
+            you.start();
+        }
+    }
+
+    class Account{
+        int balance; //balance
+        String name; // card name
+
+        public Account(int balance, String name) {
+            this.balance = balance;
+            this.name = name;
+        }
+    }
+
+    //bank, withdraw
+    class Drawing extends Thread{
+        Account account;
+        //取钱
+        int drawingMoney;
+        //手上的钱
+        int nowMoney;
+
+        //初始值: 哪个账户，取多少钱，
+        public Drawing(Account account, int drawingMoney, String name){
+            super(name); //将name传进父类thread的构造方法 - 直接使用thread的名字
+            this.account = account;
+            this.drawingMoney = drawingMoney;
+        }
+
+        //银行取钱的行为
+        @Override
+        public void run() {
+
+            synchronized (account) {
+                //如果存款不够，不能取钱
+                if (account.balance-drawingMoney<0){
+                    System.out.println(Thread.currentThread().getName()+": No Enough Money");
+                    return;
+                }
+
+                //加之个延迟，意思是，在此之前大家都判断为有钱，但是还没来得及取，不过因为判断为有钱，所有都要开始行动（开始取钱）了
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                //如果钱够，取钱，余额减少
+                account.balance = account.balance -drawingMoney;
+
+                //手上的钱增加
+                nowMoney = nowMoney + drawingMoney;
+
+                System.out.println(account.name+": balance = "+account.balance);
+                //because extends Thread, getName() is inherited
+                System.out.println(this.getName()+": money in hand:"+nowMoney);
+
+            }
+
+        }
+    }
+    ```
+
+- collection
+    - 直接加到list对象上
+
+    ```java
+    package com.kaitan.syn;
+
+    import java.util.ArrayList;
+    import java.util.List;
+
+    //thread不安全的 集合
+    public class UnsafeList {
+        public static void main(String[] args) throws InterruptedException {
+            List<String> list = new ArrayList<String>();
+            for (int i = 0; i < 10000; i++) {
+                new Thread(()->{
+                    synchronized(list){
+                        list.add(Thread.currentThread().getName());
+                    }
+                }).start();
+            }
+            Thread.sleep(3000);
+            System.out.println(list.size());
+        }
+    }
+    ```
+
+### 同步块
+
+![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2025.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2025.png)
+
+### 自带安全的Collection-list类
+
 - [ ]  [P21多线程21：CopyOnWriteArrayList03:42](https://www.bilibili.com/video/BV1V4411p7EF?p=21)
+
+这个对象自身就是安全的，不需要加synchronized 
+
+```java
+package com.kaitan.syn;
+
+import java.util.concurrent.CopyOnWriteArrayList;
+
+//测试JUC 安全type的 collection
+public class TestJUC {
+    public static void main(String[] args) throws InterruptedException {
+        CopyOnWriteArrayList<String> list = new CopyOnWriteArrayList<String>();
+        for (int i = 0; i < 10000; i++) {
+            new Thread(()->{
+                list.add(Thread.currentThread().getName());
+            }).start();
+        }
+        Thread.sleep(1000);
+        System.out.println(list.size());
+    }
+
+}
+```
+
+## 死锁
+
 - [ ]  [P22多线程22：死锁12:34](https://www.bilibili.com/video/BV1V4411p7EF?p=22)
+
+### 死锁
+
+- 死锁：多个线程互相拿着对方需要的资源，形成僵持
+
+![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2026.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2026.png)
+
+### 案例
+
+- 一个人先拿口红，然后还想拿到镜子，这样可以开始化妆
+- 另一个人先拿到镜子，然后要拿到口红，开始化妆
+- 两方卡死，形成死锁
+- 代码设计
+    - class 口红 （共享资源）
+    - class 镜子（共享资源）
+    - class 化妆 继承于Thread:
+        - init的变量：choice（先拿口红，还是镜子），name（人名）
+        - 线程涉及的run方法：进行化妆`makeup()`
+        - `makeup()`: 根据choice要求先拿A，然后保持不放手A的时候，还要拿到B
+
+    ```java
+    package com.kaitan.deadlock;
+
+    public class DeadLock {
+        public static void main(String[] args) {
+            Makeup g1  = new Makeup(0,"灰姑娘");
+            Makeup g2  = new Makeup(1,"白雪公主");
+
+            g1.start();
+            g2.start();
+        }
+    }
+
+    class Lipstick{
+    }
+
+    class Mirror{
+    }
+
+    class Makeup extends Thread{
+
+        //需要的资源只有一份，用static 来保证只有一份
+        static Lipstick lipstick = new Lipstick();
+        static Mirror mirror = new Mirror();
+
+        int choice;
+        String girlName;//使用化妆品的人
+
+        Makeup(int choice, String girlName){
+            this.choice = choice;
+            this.girlName = girlName;
+        }
+
+        private void makeup() throws InterruptedException {
+            //化妆，互相持有对方的锁，需要拿到对方的资源
+            if (choice==0){
+                synchronized(lipstick){
+                    //获得口红的锁
+                    System.out.println(this.girlName + "获得口红的锁");
+                    Thread.sleep(1000);
+                    synchronized (mirror){
+                        System.out.println(this.girlName+"获得镜子的锁");
+                    }
+                }
+            }else{
+                synchronized(mirror){
+                    //获得口红的锁
+                    System.out.println(this.girlName + "获得口红的锁");
+                    Thread.sleep(2000);
+                    synchronized (lipstick){
+                        System.out.println(this.girlName+"获得镜子的锁");
+                    }
+                }
+            }
+
+        }
+
+        @Override
+        public void run(){
+            //化妆
+            try {
+                makeup();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    ```
+
+- dead lock关键原因: 锁中锁，一个方法 要同时 获得 两个对象的锁
+- 如何修正：解开锁中锁，保证一个方法一次只锁一个对象
+
+```java
+//化妆，互相持有对方的锁，需要拿到对方的资源
+if (choice==0){
+    synchronized(lipstick){
+        //获得口红的锁
+        System.out.println(this.girlName + "获得口红的锁");
+        Thread.sleep(1000);
+	  }
+    synchronized (mirror){
+        System.out.println(this.girlName+"获得镜子的锁");
+    }
+
+}else{
+    synchronized(mirror){
+        //获得口红的锁
+        System.out.println(this.girlName + "获得口红的锁");
+        Thread.sleep(2000);
+	  }
+    synchronized (lipstick){
+        System.out.println(this.girlName+"获得镜子的锁");
+    }
+}
+```
+
+### 产生死锁的四个必要条件
+
+![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2027.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2027.png)
+
+## Lock锁
+
 - [ ]  [P23多线程23：Lock锁07:23](https://www.bilibili.com/video/BV1V4411p7EF?p=23)
+
+### 什么是锁Lock
+
+- synchronized是隐式锁，不能看到什么时候加锁，释放锁；但是Lock可以显示处理 什么时候加锁，什么时候解锁
+
+![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2028.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2028.png)
+
+### 案例
+
+- 不安全的例子
+
+    ```java
+    package com.kaitan.advanced;
+
+    public class TestLock {
+        public static void main(String[] args) {
+            TestLocka testLocka = new TestLocka();
+            //在创建上面的这个时候，就有一个testLocka.ticketNums了
+            //下面分别只运行run函数，所有都对testLocka的ticketNums进行操作
+            new Thread(testLocka).start();
+            new Thread(testLocka).start();
+            new Thread(testLocka).start();
+        }
+    }
+
+    class TestLocka implements Runnable {
+
+        static int ticketNums = 10;
+
+        @Override
+        public void run() {
+            while (true){
+                if (ticketNums>0){
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(ticketNums--);
+                }else {
+                    break;
+                }
+            }
+        }
+    }
+    ```
+
+    ```java
+    10
+    8
+    9
+    7
+    5
+    6
+    4
+    3
+    2
+    1
+    -1
+    0
+    ```
+
+- 加lock改进
+    - `private final ReentrantLock lock = new ReentrantLock();` new一个 `可重入锁` `ReentrantLock`
+    - 使用这个lock 的时候
+        - 推荐使用try, final结构：
+        `try{lock.lock() 
+             //代码-包含需要访问对象的部分} 
+        final{lock.unlock()}`
+    - 代码例子
+
+        ```java
+        package com.kaitan.advanced;
+
+        import java.util.concurrent.locks.ReentrantLock;
+
+        public class TestLock {
+            public static void main(String[] args) {
+                TestLocka testLocka = new TestLocka();
+                //在创建上面的这个时候，就有一个testLocka.ticketNums了
+                //下面分别只运行run函数，所有都对testLocka的ticketNums进行操作
+                new Thread(testLocka).start();
+                new Thread(testLocka).start();
+                new Thread(testLocka).start();
+            }
+        }
+
+        class TestLocka implements Runnable {
+
+            static int ticketNums = 10;
+
+            //定义lock锁
+            private final ReentrantLock lock = new ReentrantLock();
+
+            @Override
+            public void run() {
+                while (true){
+                    try{
+                        lock.lock();//加锁
+
+                        //不安全的代码
+                        if (ticketNums>0){
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            System.out.println(ticketNums--);
+                        }else {
+                            break;
+                        }
+                    }finally{
+                        lock.unlock();//解锁
+                    }
+                }
+            }
+        }
+        ```
+
+### 模板
+
+- 必须`lock.lock()`, `lock.unlock()`
+- 如果代码块有exception需要将unlock写入finally
+
+![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2029.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2029.png)
+
+### synchronized 与lock 对比
+
+![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2030.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2030.png)
+
+## 线程协作
+
+`难点`
+
+### 生产者消费者模式
+
 - [ ]  [P24多线程24：生产者消费者问题06:56](https://www.bilibili.com/video/BV1V4411p7EF?p=24)
+- 不属23种设计模式，只是一个问题
+- 生产者：生产东西，比如KFC提供食物，如果没有客户买了，但是现在没有，就去
+- 消费者：去买肯德基，如果发现没食物了，要等待
+
+    ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2031.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2031.png)
+
+- synchronize不够用了：
+
+    ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2032.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2032.png)
+
+### Object中syn相关的方法
+
+- 每个对象都有一把锁
+- 对象是Object类，Object类有一些`默认方法`（在同步代码块、同步方法中用），以解决线程之间通信问题
+
+    ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2033.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2033.png)
+
+### 解决方法
+
+- 方法1： 管程法
+
+    ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2034.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2034.png)
+
+- 方法2：信号灯发
+    - 信号如果true, 等待，false就通知另外一个人
+
+## 解决方法1-管程法
+
 - [ ]  [P25多线程25：管程法10:18](https://www.bilibili.com/video/BV1V4411p7EF?p=25)
+
+### 例子：KFC提供鸡
+
+- 主方法
+    - new一个container作为缓冲区
+    - 开启一个producer线程，对这个container操作
+    - 开启一个consumer线程，对这个container操作
+    - 注意，只要不是空了、满了，两个线程会一次一次操作container（每一个分别会加锁，释放锁，所以看CPU心情，到底是谁来操作）
+- class 鸡
+    - init需要传入鸡的id
+- class 生产者（Thread）:
+    - init 需要传入一个container
+    - run方法：
+        - 循环一共把100个鸡放进container里 (`container.push(new Chichken(i))`)
+        - 每次只操作一个鸡，一次操作会加锁，释放锁
+        - 注意，只有container满了，才会进入wait，消费者每一次消费完都会唤醒一下（因为就不满了，有上架空间）
+- class 消费者（Thread）:
+    - init 需要传入一个container
+    - run方法：
+        - 循环一共陆续消费container中的100个鸡 (`container.pop()`)
+        - 每次只操作一个鸡，一次操作会加锁，释放锁
+        - 注意，只有container空了，才会进入wait，producer每一次生产完都会唤醒一下consumer（因为就不空了，有consume空间）
+- class 缓冲区container:
+    - init：建立一个10个鸡的 数组，初始count = 0 （最开始container中没有鸡）
+    - 构建producer 用来上架一只chicken的push方法（`synchronized`）：
+        - input 参数：一只生产出来，要放入缓冲区的chicken
+        - 如果当前container中鸡的个数 == container容量（10），缓冲区已满，producer进入等待（wait释放锁，释放此container给consumer）
+        - 等待消费者唤醒（通知）自己鸡不够了之后，producer将这只chicken 放到（由consumer消费而空出来的）第一个空位（消费者消费之后，会调整count），然后count++，注意，被唤醒后操作container的过程是有锁的
+        - 放到container中， 会通知consumer去消费`this.notifyAll();`
+    - 构建consumer用来消费一只chicken的pop方法（`synchronized`）：
+        - 没有input参数，因为直接从container取，就好了
+        - 如果当前没有鸡了，进入wait(释放container资源给producer来生产)
+        - producer生产完了，会唤醒consumer，consumer从container中取走一只鸡，把这只取走的鸡返回出来
+        - 吃完之后通知producer生产
+
+    ```java
+    package com.kaitan.advanced;
+    //producer, consumer,利用缓冲区解决-管程法
+
+    //需要producer, consumer, product, 缓冲区buffer
+    public class TestPC {
+        public static void main(String[] args) {
+            SynContainer container = new SynContainer();
+
+            new Producer(container).start();
+            new Consumer(container).start();
+        }
+    }
+
+    //producer
+    class Producer extends Thread {
+        SynContainer container;
+
+        public Producer(SynContainer container) {
+            this.container = container;
+        }
+
+        //produce
+        @Override
+        public void run() {
+            for (int i = 0; i < 100; i++) {
+                container.push(new Chicken(i));
+                System.out.println("Produced "+i+" Chicken");
+            }
+        }
+    }
+
+    //consumer
+    class Consumer extends Thread{
+        SynContainer container;
+
+        public Consumer(SynContainer container) {
+            this.container = container;
+        }
+
+        //consume
+        @Override
+        public void run() {
+            for (int i = 0; i < 100; i++) {
+
+                System.out.println("Consumed id:"+container.pop().id+" Chicken");
+            }
+        }
+    }
+
+    //product
+    class Chicken {
+        int id;//product id
+
+        public Chicken(int id) {
+            this.id = id;
+        }
+    }
+
+    //缓冲区
+    class SynContainer{
+        //container size
+        Chicken[] chickens  = new Chicken[10];
+        //number of products in the container
+        int count = 0;
+
+        //producer put products in the container
+        //count: current number of chickens in the container
+        public synchronized void push(Chicken chicken){
+            //if full, wait for the consumer to consume
+            if(count == chickens.length){
+                //notify consumer to consume, wait to produce products
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            
+            //if not full, put more products in the container
+            chickens[count] = chicken;
+            count++;
+
+            //notify consumer to consume
+            this.notifyAll();
+        }
+
+        //consumer to consume the chicken
+        public synchronized Chicken pop(){
+            if (count ==0){
+                //wait producer to produce
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            count --;
+            Chicken chicken = chickens[count];
+
+            //ate it, notify producer to produce
+            this.notifyAll();
+            return chicken;
+        }
+    }
+    ```
+
+## 方法2：信号灯
+
 - [ ]  [P26多线程26：信号灯法08:09](https://www.bilibili.com/video/BV1V4411p7EF?p=26)
+
+### 代码设计
+
+- 主函数
+    - new一个show
+    - 然后将show分别传入actor,audience,然后两个线程同步运行
+    - 流程分析：
+        - new这个show的时候，show自带两个attribute，当前的节目（show）和 当前的信号（初始化为true）
+        - 然后双线程启动，因为都是同步锁，cpu分配到的那一方，进入第一个循环节的时候, 因为是true：
+            - 如果是观众线程抢到，进入wait，释放锁，那演员可以先进行表演第一个节目了
+            - 如果是演员抢到，可以先进行表演第一个节目
+            - 那么，此时这个第一个节目就存入show这个attribute（当前节目）
+            - 演员表演后，把信号改成false，然后唤醒观众，观众看到false信号，就可以开始观看这个节目（当前节目-show）了，在观众观看过程中，演员线程因为接收到的是false, 就进入了wait（hai 不能表演下一个节目），要等观众这边看完后唤醒
+- class 演员 (thread)
+    - init：要传入要表演的节目
+    - run：依次表演20个节目，每一次都开锁关锁（共享资源是show）
+- class 演员 (thread)
+    - init：要传入要观看的节目
+    - run：依次观看20个节目（演员表演啥就看啥），每一次都开锁关锁（共享资源是show）
+- class 节目
+    - init：有一个节目名称show,还有一个信号灯flag（默认为true）
+    - synchronized方法perform（演员表演节目）:
+        - 要传入节目名称
+        - 如果flag=false，进入等待，直到被另一线程（观众）唤醒
+        - 唤醒后，表演节目
+        - 通知观众观看
+        - 换flag（换成false，因为之前观众false→true了）
+    - synchronized方法watch（观看表演节目）:
+        - 不需要传入节目名称（此时show是啥就看啥）
+        - 如果flag=true，进入等待，直到被另一线程（演员）唤醒
+        - 唤醒后，观看节目
+        - 通知演员表演节目
+        - 换flag（换成true，因为之前演员true→false了）
+
+    ```java
+    package com.kaitan.advanced;
+
+    //测试 生产者 消费者问题： 信号灯法，标志位解决
+    public class TestPc2 {
+        public static void main(String[] args) {
+            Show show = new Show();
+            new Actor(show).start();
+            new Audience(show).start();
+        }
+
+    }
+
+    //生产者- 演员
+    class Actor extends Thread{
+        Show show;
+        public Actor(Show show){
+            this.show = show;
+        }
+
+        @Override
+        public void  run(){
+            for (int i = 0; i < 20; i++) {
+                if (i%2==0){
+                    this.show.perform("快乐大本营播放中");
+                }else{
+                    this.show.perform("广告");
+                }
+            }
+        }
+
+    }
+
+    //消费者-观众
+    class Audience extends Thread{
+        Show show;
+        public Audience(Show show){
+            this.show = show;
+        }
+
+        public void run(){
+            for (int i = 0; i < 20; i++) {
+                if (i%2==0){
+                    this.show.watch();
+                }else{
+                    this.show.watch();
+                }
+            }
+        }
+    }
+
+    //产品-节目
+    class Show {
+        //演员录制表演节目，观众等待 T
+        //观众观看节目，演员等待反馈 F
+        String show;
+        boolean flag = true;
+
+        //表演
+        public synchronized void perform(String show){
+            if(!flag){
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("Actor performed:"+show);
+            //通知观众观看
+            this.notifyAll();
+            this.show = show;
+            this.flag = !this.flag;
+        }
+
+        //观看
+        public synchronized void watch() {
+            if(flag) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            System.out.println("Audience watched:"+show);
+            //通知演员表演
+            this.notifyAll();
+            this.flag = !this.flag;
+
+        }
+    }
+    ```
+
+## 线程池
+
 - [ ]  [P27多线程27：线程池05:52](https://www.bilibili.com/video/BV1V4411p7EF?p=27)
+
+### 使用线程池
+
+- 每次新建，销毁thread类似每次 买，扔一辆自行车，浪费资源
+- 如果共享单车（线程池），可以需要用thread的时候，用池子中的thread，不用了放回去
+- 可以管这个thread池子大小，多长时间不用就关掉
+
+    ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2035.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2035.png)
+
+- callable也是类似
+
+    ![%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2036.png](%E3%80%90%E7%8B%82%E3%80%91%E5%A4%9A%E7%BA%BF%E7%A8%8B%202518505019b24e07906051941ac69663/Untitled%2036.png)
+
+### 代码实践
+
+- 创建一个线程池`ExecutorService service = Executors.newFixedThreadPool(10);`
+- 在这个service中创建线程，用完之后关闭即可 `service.shutdown();`
+
+```java
+package com.kaitan.advanced;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+//测试线程池
+public class TestPool {
+    public static void main(String[] args) {
+        //1.创建线程池
+        ExecutorService service = Executors.newFixedThreadPool(10);
+        service.execute(new MyThread());
+        service.execute(new MyThread());
+        service.execute(new MyThread());
+        service.execute(new MyThread());
+
+        //2. 关闭链接
+        service.shutdown();
+    }
+}
+
+class MyThread implements Runnable{
+
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName());
+    }
+}
+```
+
+## 总结
+
+### 三种新建Thread的方式
+
 - [ ]  [P28多线程28：总结05:14](https://www.bilibili.com/video/BV1V4411p7EF?p=28)
+
+```java
+package com.kaitan.advanced;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+// 回顾总结线程 创建
+public class ThreadNew {
+    public static void main(String[] args) {
+        new MyThread1().start();
+        new Thread(new MyThread2()).start();
+
+        FutureTask<Integer> futureTask = new FutureTask<Integer>(new MyThread3());
+        //control+click to see the param*
+        //can pass callable/runnable
+        //callable extends runnable
+        new Thread(futureTask).start();
+        //get returned value
+        try {
+            Integer integer =  futureTask.get();
+            System.out.println(integer);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+    }
+}
+
+//1. extends Thread
+class MyThread1 extends Thread{
+    @Override
+    public void run() {
+        System.out.println("MyThread1");
+    }
+}
+
+//2. implements Runnable
+class MyThread2 implements Runnable{
+    @Override
+    public void run() {
+        System.out.println("MyThread2");
+    }
+}
+
+//3. implements callable, needs a return
+class MyThread3 implements Callable<Integer> {
+
+    @Override
+    public Integer call() throws Exception {
+        System.out.println("MyThread3");
+        return 100;
+    }
+}
+```
