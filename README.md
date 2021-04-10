@@ -4,7 +4,7 @@
 
 此repo记录了我学习Java 多线程（狂神说系列）的笔记和代码：
 
-- [个人学习笔记](https://github.com/Zidiefeng/java_thread_study/blob/master/docs/content.md)
+- [个人学习笔记](https://github.com/Zidiefeng/java_thread_study/blob/master/docs/README.md)
 - [code](https://github.com/Zidiefeng/java_thread_study/tree/master/src/com/kaitan)
 
 ---
